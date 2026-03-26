@@ -24,23 +24,13 @@ async function registerUser(page: Page, username: string, password: string) {
 
 test.describe('Account Features Suite', () => {
 
-  test.describe.configure({ mode: 'serial' });
-
-  // Registers a fresh user and opens a second account needed for the Transfer Funds test.
-  test.beforeAll(async ({ browser }) => {
+  test.beforeEach(async ({ page }) => {
     test.setTimeout(120000);
-    const context = await browser.newContext();
-    const page = await context.newPage();
+    // Generate a new user for each test to ensure test isolation
     username = 'user' + Date.now();
     await registerUser(page, username, password);
-    await context.close();
-  });
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto('https://parabank.parasoft.com/parabank/index.htm');
-    await page.fill('input[name="username"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('input[value="Log In"]');
+    
+    // Ensure user is logged in after registration
     await expect(page.getByRole('link', { name: 'Log Out' })).toBeVisible();
   });
 
